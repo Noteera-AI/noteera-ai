@@ -3,7 +3,7 @@ import Home from "./pages/home.jsx";
 import Design from "./pages/design.jsx";
 import Preview from "./pages/preview.jsx";
 import AI from "./pages/ai.jsx";
-import Scan from "./pages/Scan.jsx";
+import Scan from "./pages/scan.jsx";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Profile from "./pages/profile.jsx";
