@@ -21,7 +21,16 @@ initializeApp({
 const db = getFirestore();
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://noteera-ai-hqyd.vercel.app",
+      "https://noteera-ai-hqyd-git-main-ahmed-c2bf.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
 const upload = multer({
