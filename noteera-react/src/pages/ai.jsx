@@ -18,7 +18,7 @@ const [loading, setLoading] = useState(false);
       formData.append("image", image);
     }
 
-    const res = await fetch("http://192.168.100.226:5000/ask", {
+    const res = await fetch("https://noteera-ai-346i.vercel.app/ask", {
       method: "POST",
       body: formData,
     });

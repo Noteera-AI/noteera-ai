@@ -2,84 +2,118 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
+
 function Subscription() {
-    const [subscription, setSubscription] = useState(null);
-    const [loading, setLoading] = useState(true);
-const [currentUser, setCurrentUser] = useState(null);
-useEffect(() => {
-  const loadSubscription = async () => {
-    const user = currentUser;
-if (!user) return;
+  const [subscription, setSubscription] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
-    const userSnap = await getDoc(doc(db, "users", user.uid));
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
 
-    if (userSnap.exists()) {
-      const data = userSnap.data();
-
-     const sub = data.subscription || {
-  plan: "free",
-  status: "active",
-};
-
-if (sub.plan === "plus" && sub.expiresAt) {
-  const expiresAt = sub.expiresAt.toDate();
-
-  if (expiresAt <= new Date()) {
-    setSubscription({
-      plan: "free",
-      status: "expired",
+      if (!user) {
+        setSubscription(null);
+        setLoading(false);
+      }
     });
-  } else {
-    setSubscription(sub);
-  }
-} else {
-  setSubscription(sub);
-}
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const loadSubscription = async () => {
+      if (!currentUser) return;
+
+      try {
+        setLoading(true);
+
+        const userSnap = await getDoc(
+          doc(db, "users", currentUser.uid)
+        );
+
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+
+          const sub = data.subscription || {
+            plan: "free",
+            status: "active",
+          };
+
+          if (sub.plan === "plus" && sub.expiresAt) {
+            const expiresAt = sub.expiresAt.toDate();
+
+            if (expiresAt <= new Date()) {
+              setSubscription({
+                plan: "free",
+                status: "expired",
+              });
+            } else {
+              setSubscription(sub);
+            }
+          } else {
+            setSubscription(sub);
+          }
+        } else {
+          setSubscription({
+            plan: "free",
+            status: "active",
+          });
+        }
+      } catch (error) {
+        console.error("Subscription load error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSubscription();
+  }, [currentUser]);
+
+  const handleSubscribe = async () => {
+    try {
+      const user = currentUser;
+
+      if (!user) {
+        alert("سجل دخولك أولًا");
+        return;
+      }
+
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(
+        "https://noteera-ai-346i.vercel.app/create-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            userId: user.uid,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "فشل إنشاء الاشتراك");
+      }
+
+      console.log("Subscription response:", data);
+      alert(data.message);
+
+      setSubscription({
+        plan: "plus",
+        status: "active",
+      });
+    } catch (error) {
+      console.error("Subscription error:", error);
+      alert("صار خطأ بالاتصال بالسيرفر");
     }
-    setLoading(false);
   };
 
-  loadSubscription();
-}, [currentUser]);
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    setCurrentUser(user);
-  });
-
-  return () => unsubscribe();
-}, []);
-const handleSubscribe = async () => {
-  try {
-    const user = currentUser;
-
-    if (!user) {
-      alert("سجل دخولك أولًا");
-      return;
-    }
-const idToken = await user.getIdToken();
-    const response = await fetch(
-      "http://192.168.100.226:5000/create-subscription",
-      {
-        method: "POST",
-        headers: {
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${idToken}`,
-},
-        body: JSON.stringify({
-          userId: user.uid,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    console.log("Subscription response:", data);
-    alert(data.message);
-  } catch (error) {
-    console.error(error);
-    alert("صار خطأ بالاتصال بالسيرفر");
-  }
-};
   return (
     <div
       dir="rtl"
@@ -141,8 +175,7 @@ const idToken = await user.getIdToken();
 
           <div
             style={{
-              color: "#64748B",
-              marginTop: "6px",
+              color: "#64748B",marginTop: "6px",
             }}
           >
             شهريًا
@@ -164,26 +197,37 @@ const idToken = await user.getIdToken();
         </div>
 
         <button
-        onClick={loading || subscription?.plan === "plus" ? undefined : handleSubscribe}
           type="button"
+          onClick={
+            loading || subscription?.plan === "plus"
+              ? undefined
+              : handleSubscribe
+          }
+          disabled={loading || subscription?.plan === "plus"}
           style={{
             width: "100%",
             marginTop: "28px",
             padding: "15px",
             border: "none",
             borderRadius: "14px",
-            background: "#2563EB",
+            background:
+              loading || subscription?.plan === "plus"
+                ? "#94A3B8"
+                : "#2563EB",
             color: "#fff",
             fontSize: "17px",
             fontWeight: "bold",
-            cursor: "pointer",
+            cursor:
+              loading || subscription?.plan === "plus"
+                ? "default"
+                : "pointer",
           }}
         >
           {loading
-  ? "جاري التحقق..."
-  : subscription?.plan === "plus"
-  ? "✅ أنت مشترك في Noteera Plus"
-  : "اشترك الآن"}
+            ? "جاري التحقق..."
+            : subscription?.plan === "plus"
+            ? "✅ أنت مشترك في Noteera Plus"
+            : "اشترك الآن"}
         </button>
       </div>
     </div>
