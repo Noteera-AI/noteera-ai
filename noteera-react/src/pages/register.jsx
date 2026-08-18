@@ -51,7 +51,7 @@ const Register = () => {
       setMessage("✅ تم إنشاء الحساب بنجاح");
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 1200);
    } catch (error) {
   console.error(error);

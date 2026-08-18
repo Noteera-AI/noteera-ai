@@ -14,6 +14,7 @@ function Home() {
     console.log("AUTH USER:", user);
     if (!user) {
       setStudent(null);
+      navigate("/login");
       return;
     }
 
