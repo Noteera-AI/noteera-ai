@@ -146,7 +146,7 @@ const translateAnswer = async () => {
   if (!answer) return;
 
   try {
-    const response = await fetch("http://localhost:5000/translate", {
+    const response = await fetch("/api/translate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
