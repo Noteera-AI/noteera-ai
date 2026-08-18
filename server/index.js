@@ -99,12 +99,7 @@ if (!allowedTypes.includes(uploadedFile.mimetype)) {
         } else if (isImageFile) {
           base64Image = uploadedFile.buffer.toString("base64");
 
-          const result = await Tesseract.recognize(
-            uploadedFile.buffer,
-            "ara+eng"
-          );
-
-          extractedText = result.data.text || "";
+          extractedText = "";
         }
       }
 const MAX_TEXT_CHARS = 8000;
