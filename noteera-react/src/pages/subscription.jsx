@@ -82,7 +82,7 @@ function Subscription() {
       const idToken = await user.getIdToken();
 
       const response = await fetch(
-        "https://noteera-ai-346i.vercel.app/create-subscription",
+  `${import.meta.env.VITE_API_URL}/create-subscription`,
         {
           method: "POST",
           headers: {

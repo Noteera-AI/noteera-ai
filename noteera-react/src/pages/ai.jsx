@@ -18,7 +18,7 @@ const [loading, setLoading] = useState(false);
       formData.append("image", image);
     }
 
-    const res = await fetch("https://noteera-ai-346i.vercel.app/ask", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/ask`, {
       method: "POST",
       body: formData,
     });
