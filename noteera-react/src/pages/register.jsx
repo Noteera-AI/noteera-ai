@@ -109,14 +109,39 @@ setMessage(
       >
         إنشاء حساب
       </h2>
-
+<select
+  value={educationType}
+  onChange={(e) => setEducationType(e.target.value)}
+  style={{
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "14px",
+    marginBottom: "12px",
+    border: "1px solid #CBD5E1",
+    borderRadius: "14px",
+    fontSize: "16px",
+    background: "#fff",
+  }}
+>
+  <option value="institute">جامعة / معهد</option>
+  <option value="school">مدرسة</option>
+</select>
       {[
         ["الاسم الكامل", name, setName, "text"],
         ["البريد الإلكتروني", email, setEmail, "email"],
         ["كلمة المرور", password, setPassword, "password"],
-        ["الجامعة أو المعهد", university, setUniversity, "text"],
-        ["المرحلة", stage, setStage, "text"],
-        
+       [
+  educationType === "school" ? "اسم المدرسة" : "الجامعة أو المعهد",
+  university,
+  setUniversity,
+  "text"
+],
+[
+  educationType === "school" ? "الصف" : "المرحلة",
+  stage,
+  setStage,
+  "text"
+],
       ].map(([placeholder, value, setter, type]) => (
         <input
           key={placeholder}
@@ -136,23 +161,7 @@ setMessage(
           }}
         />
       ))}
-<select
-  value={educationType}
-  onChange={(e) => setEducationType(e.target.value)}
-  style={{
-    width: "100%",
-    boxSizing: "border-box",
-    padding: "14px",
-    marginBottom: "12px",
-    border: "1px solid #CBD5E1",
-    borderRadius: "14px",
-    fontSize: "16px",
-    background: "#fff",
-  }}
->
-  <option value="institute">جامعة / معهد</option>
-  <option value="school">مدرسة</option>
-</select>
+
       <button
         onClick={handleRegister}
         style={{
