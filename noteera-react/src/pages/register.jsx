@@ -56,7 +56,11 @@ const Register = () => {
    } catch (error) {
   console.error(error);
   alert("خطأ التسجيل:\n" + error.code + "\n" + error.message);
-  setMessage("❌ " + error.message);
+setMessage(
+  error.code === "auth/weak-password"
+    ? "❌ كلمة المرور لازم تكون 6 أحرف على الأقل"
+    : "❌ صار خطأ أثناء إنشاء الحساب، تأكد من المعلومات وحاول مرة ثانية"
+);
 }
   };
 
