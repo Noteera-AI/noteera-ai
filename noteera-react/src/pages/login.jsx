@@ -15,7 +15,7 @@ const Login = () => {
     await signInWithEmailAndPassword(auth, email, password);
     navigate("/");
   } catch (error) {
-    setMessage("❌ " + error.message);
+    setMessage("❌ البريد الإلكتروني أو كلمة المرور غير صحيحة، وإذا ما عندك حساب اضغط إنشاء حساب");
   }
 };
 
