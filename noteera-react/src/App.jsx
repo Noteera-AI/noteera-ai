@@ -12,6 +12,7 @@ import Store from "./pages/store.jsx";
 import Subscription from "./pages/subscription.jsx";
 import Orders from "./pages/orders.jsx";
 import Verify from "./pages/verify.jsx";
+import QrMaker from "./pages/qr-maker.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -25,7 +26,7 @@ function App() {
           <Route path="/ai" element={<AI />} />
           <Route path="/scan" element={<Scan />} />
           <Route path="/verify" element={<Verify />} />
-          
+          <Route path="/qr-maker" element={<QrMaker />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
