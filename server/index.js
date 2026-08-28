@@ -372,6 +372,58 @@ async function readQrFromBuffer(buffer) {
 
   return code?.data || null;
 }
+async function verifyNoteeraVisualMark(buffer) {
+  try {
+    const uploadedImage = await sharp(buffer)
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    const noteeraMark = await sharp(noteeraMarkPath)
+      .png()
+      .toBuffer();
+
+    const uploadedBase64 = uploadedImage.toString("base64");
+    const markBase64 = noteeraMark.toString("base64");
+
+    const response = await openai.responses.create({
+      model: "gpt-4.1",
+      input: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: `
+الصورة الأولى هي العلامة البصرية الرسمية لـ Noteera.
+الصورة الثانية هي ورقة مصورة.
+
+تحقق هل العلامة البصرية الرسمية نفسها موجودة بوضوح داخل الورقة الثانية.
+
+أجب فقط:
+YES
+أو
+NO
+              `,
+            },
+            {
+              type: "input_image",
+              image_url: `data:image/png;base64,${markBase64}`,
+            },
+            {
+              type: "input_image",
+              image_url: `data:image/jpeg;base64,${uploadedBase64}`,
+            },
+          ],
+        },
+      ],
+    });
+
+    return response.output_text.trim().toUpperCase() === "YES";
+  } catch (error) {
+    console.error("NOTEERA VISUAL MARK ERROR:", error);
+    return false;
+  }
+}
 app.post("/ocr", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -395,6 +447,16 @@ if (!verifyNoteeraQr(qrData)) {
 }
 
 console.log("✅ NOTEERA QR VERIFIED:", qrData);
+const hasVisualMark = await verifyNoteeraVisualMark(req.file.buffer);
+
+if (!hasVisualMark) {
+  return res.status(403).json({
+    verified: false,
+    text: "❌ هذه الورقة غير معتمدة من Noteera أو لا تحتوي على العلامة البصرية الرسمية.",
+  });
+}
+
+console.log("✅ NOTEERA VISUAL MARK VERIFIED");
     const enhancedImage = await sharp(req.file.buffer)
   .grayscale()
   .normalize()
