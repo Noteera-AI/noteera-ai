@@ -476,13 +476,13 @@ const qrData = await readQrFromBuffer(req.file.buffer);
 if (!qrData) {
   return res.status(403).json({
     verified: false,
-    text: "❌ تعذّر التحقق من الورقة. تأكد أن ختم Noteera ظاهر بوضوح ثم حاول مرة أخرى.",
+    text: "❌ هذه الورقة غير أصلية أو لا تحتوي على ختم نوتيرا",
   });
 }
 if (!verifyNoteeraQr(qrData)) {
   return res.status(403).json({
     verified: false,
-    text: "❌ تعذّر التحقق من الورقة. تأكد أن ختم Noteera ظاهر بوضوح ثم حاول مرة أخرى.",
+    text: "❌ هذه الورقة غير أصلية أو لا تحتوي على ختم نوتيرا",
   });
 }
 
@@ -492,7 +492,7 @@ const hasVisualMark = await verifyNoteeraVisualMark(req.file.buffer);
 if (!hasVisualMark) {
   return res.status(403).json({
     verified: false,
-    text: "❌ هذه الورقة غير معتمدة من Noteera أو لا تحتوي على العلامة البصرية الرسمية.",
+    text: "❌ هذه الورقة غير أصلية أو لا تحتوي على ختم نوتيرا",
   });
 }
 

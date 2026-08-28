@@ -612,7 +612,7 @@ opacity: !image || loading ? 0.6 : 1,
     : "📝 حوّلها إلى صفحة رقمية"}
 </button>
 <div style={{ color: "red", fontSize: "20px", marginTop: "10px" }}>
-  TEST TEST TEST
+  
 </div>
 {digitalText && (
   <div
