@@ -424,6 +424,46 @@ NO
     return false;
   }
 }
+app.post("/verify-paper", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        verified: false,
+        message: "ماكو صورة مرفوعة",
+      });
+    }
+
+    const qrData = await readQrFromBuffer(req.file.buffer);
+
+    if (!qrData || !verifyNoteeraQr(qrData)) {
+      return res.status(403).json({
+        verified: false,
+        message: "❌ رمز Noteera غير صحيح أو غير موجود.",
+      });
+    }
+
+    const hasVisualMark = await verifyNoteeraVisualMark(req.file.buffer);
+
+    if (!hasVisualMark) {
+      return res.status(403).json({
+        verified: false,
+        message: "❌ العلامة البصرية الرسمية لـ Noteera غير موجودة.",
+      });
+    }
+
+    return res.json({
+      verified: true,
+      message: "✅ تم التحقق من الورقة بنجاح.",
+    });
+  } catch (error) {
+    console.error("VERIFY PAPER ERROR:", error);
+
+    return res.status(500).json({
+      verified: false,
+      message: "حدث خطأ أثناء التحقق من الورقة.",
+    });
+  }
+});
 app.post("/ocr", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
