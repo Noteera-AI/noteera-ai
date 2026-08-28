@@ -438,7 +438,7 @@ app.post("/verify-paper", upload.single("file"), async (req, res) => {
     if (!qrData || !verifyNoteeraQr(qrData)) {
       return res.status(403).json({
         verified: false,
-        message: "❌ رمز Noteera غير صحيح أو غير موجود.",
+        message: "❌ هذه الورقة غير أصلية أو لا تحتوي على ختم نوتيرا",
       });
     }
 
@@ -447,7 +447,7 @@ app.post("/verify-paper", upload.single("file"), async (req, res) => {
     if (!hasVisualMark) {
       return res.status(403).json({
         verified: false,
-        message: "❌ العلامة البصرية الرسمية لـ Noteera غير موجودة.",
+        message: "❌ هذه الورقة غير أصلية أو لا تحتوي على ختم نوتيرا",
       });
     }
 
