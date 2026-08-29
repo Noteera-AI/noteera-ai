@@ -26,6 +26,7 @@ function App() {
           <Route path="/ai" element={<AI />} />
           <Route path="/scan" element={<Scan />} />
           <Route path="/verify" element={<Verify />} />
+          <Route path="/v" element={<Verify />} />
           <Route path="/qr-maker" element={<QrMaker />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
