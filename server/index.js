@@ -359,18 +359,43 @@ console.log("✅ رجع الرد من OpenAI");
   }
 );
 async function readQrFromBuffer(buffer) {
-  const { data, info } = await sharp(buffer)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const attempts = [
+    { width: 1200, grayscale: false },
+    { width: 1800, grayscale: true },
+    { width: 2400, grayscale: true },
+  ];
 
-  const code = jsQR(
-    new Uint8ClampedArray(data),
-    info.width,
-    info.height
-  );
+  for (const attempt of attempts) {
+    try {
+      let image = sharp(buffer).resize({
+        width: attempt.width,
+        withoutEnlargement: false,
+      });
 
-  return code?.data || null;
+      if (attempt.grayscale) {
+        image = image.grayscale().normalize().sharpen();
+      }
+
+      const { data, info } = await image
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      const code = jsQR(
+        new Uint8ClampedArray(data),
+        info.width,
+        info.height
+      );
+
+      if (code?.data) {
+        return code.data;
+      }
+    } catch (error) {
+      console.error("QR READ ATTEMPT ERROR:", error);
+    }
+  }
+
+  return null;
 }
 async function verifyNoteeraVisualMark(buffer) {
   try {
