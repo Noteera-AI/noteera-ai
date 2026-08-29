@@ -43,11 +43,7 @@ function createNoteeraSignature() {
 
 function verifyNoteeraQr(qrData) {
   try {
-    const signature = createNoteeraSignature();
-
-    const expectedQr =
-      `https://noteera-ai-hqyd.vercel.app/verify?sig=${signature}`;
-
+    const expectedQr = "https://noteera-ai-hqyd.vercel.app/v";
     return qrData === expectedQr;
   } catch (error) {
     console.error("NOTEERA QR VERIFY ERROR:", error);
@@ -718,10 +714,7 @@ app.get("/verify-noteera", (req, res) => {
 });
 app.get("/noteera-qr-link", (req, res) => {
   try {
-    const signature = createNoteeraSignature();
-
-    const qrUrl =
-      `https://noteera-ai-hqyd.vercel.app/verify?sig=${signature}`;
+    const qrUrl = "https://noteera-ai-hqyd.vercel.app/v";
 
     return res.json({
       success: true,
