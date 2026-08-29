@@ -1,14 +1,31 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function Verify() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("checking");
 
   useEffect(() => {
     const verifyNoteera = async () => {
       try {
+        // QR الجديد الخفيف
+        if (location.pathname === "/v") {
+          setStatus("success");
+
+          setTimeout(() => {
+            navigate("/");
+          }, 1200);
+
+          return;
+        }
+
+        // QR القديم
         const sig = searchParams.get("sig");
 
         if (!sig) {
@@ -17,8 +34,8 @@ export default function Verify() {
         }
 
         const response = await fetch(
-  `https://noteera-ai.vercel.app/verify-noteera?sig=${encodeURIComponent(sig)}`
-);
+          `https://noteera-ai.vercel.app/verify-noteera?sig=${encodeURIComponent(sig)}`
+        );
 
         const data = await response.json();
 
@@ -38,7 +55,7 @@ export default function Verify() {
     };
 
     verifyNoteera();
-  }, [searchParams, navigate]);
+  }, [location.pathname, searchParams, navigate]);
 
   return (
     <div
