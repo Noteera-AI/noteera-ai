@@ -359,43 +359,75 @@ console.log("✅ رجع الرد من OpenAI");
   }
 );
 async function readQrFromBuffer(buffer) {
-  const attempts = [
-    { width: 1200, grayscale: false },
-    { width: 1800, grayscale: true },
-    { width: 2400, grayscale: true },
-  ];
+  try {
+    const metadata = await sharp(buffer).metadata();
 
-  for (const attempt of attempts) {
-    try {
-      let image = sharp(buffer).resize({
-        width: attempt.width,
-        withoutEnlargement: false,
-      });
+    const width = metadata.width;
+    const height = metadata.height;
 
-      if (attempt.grayscale) {
-        image = image.grayscale().normalize().sharpen();
+    if (!width || !height) return null;
+
+    // نجرب الصورة كاملة أولاً
+    const candidates = [
+      buffer,
+
+      // بعدها نقص الزاوية اليسرى العلوية ونكبرها
+      await sharp(buffer)
+        .extract({
+          left: 0,
+          top: 0,
+          width: Math.max(1, Math.floor(width * 0.45)),
+          height: Math.max(1, Math.floor(height * 0.35)),
+        })
+        .toBuffer(),
+    ];
+
+    for (const candidate of candidates) {
+      const attempts = [
+        { width: 1400, grayscale: false },
+        { width: 1800, grayscale: true },
+        { width: 2200, grayscale: true },
+      ];
+
+      for (const attempt of attempts) {
+        try {
+          let image = sharp(candidate).resize({
+            width: attempt.width,
+            withoutEnlargement: false,
+          });
+
+          if (attempt.grayscale) {
+            image = image
+              .grayscale()
+              .normalize()
+              .sharpen();
+          }
+
+          const { data, info } = await image
+            .ensureAlpha()
+            .raw()
+            .toBuffer({ resolveWithObject: true });
+
+          const code = jsQR(
+            new Uint8ClampedArray(data),
+            info.width,
+            info.height
+          );
+
+          if (code?.data) {
+            return code.data;
+          }
+        } catch (error) {
+          console.error("QR READ ATTEMPT ERROR:", error);
+        }
       }
-
-      const { data, info } = await image
-        .ensureAlpha()
-        .raw()
-        .toBuffer({ resolveWithObject: true });
-
-      const code = jsQR(
-        new Uint8ClampedArray(data),
-        info.width,
-        info.height
-      );
-
-      if (code?.data) {
-        return code.data;
-      }
-    } catch (error) {
-      console.error("QR READ ATTEMPT ERROR:", error);
     }
-  }
 
-  return null;
+    return null;
+  } catch (error) {
+    console.error("QR READ ERROR:", error);
+    return null;
+  }
 }
 async function verifyNoteeraVisualMark(buffer) {
   try {
