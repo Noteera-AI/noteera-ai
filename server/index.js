@@ -19,7 +19,7 @@ const noteeraMarkPath = path.join(
   __dirname,
   "..",
   "public",
-  "noteera-mark.png"
+  "noteera-mark-simple.png"
 );
 const require = createRequire(import.meta.url);
 const pdfParse = require("pdf-parse/lib/pdf-parse.js");
